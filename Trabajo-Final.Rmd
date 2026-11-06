@@ -1,10 +1,10 @@
 #aca ta la roncha esta
 ```{r}
+
 # 1. Cargar la librería 
 library(readr)
 library(ggplot2)
 
-# 2. Conexiósn remota a tu GitHub Raw
 url_github <- "https://raw.githubusercontent.com/michellesalazar17/Trabajo-Final/main/Sample%20-%20Superstore.csv"
 
 # 3. Leer el dataset CSV (separado por punto y coma)
@@ -12,6 +12,8 @@ superstore_df <- read_delim(url_github, delim = ";")
 #3.1 ponemos para que se pueda leer 
 superstore_df <- read_delim(url_github, delim = ";", locale = locale(encoding = "latin1"))
  
+
 ```
+
 
 
