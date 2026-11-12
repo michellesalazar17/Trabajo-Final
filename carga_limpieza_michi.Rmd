@@ -1,0 +1,73 @@
+---
+title: "Análisis del comportamiento y relación de las ganancias con factores comerciales y demográficos en una tienda minorista (2014–2017)"
+author: -"Paola Alcarra"
+        -"Scarleth Cacique"
+        -"Anthony Briceno"
+        -"Michelle Salazar"
+date: "2026-11-15"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    collapsed: true
+    theme: journal
+    highlight: kate
+    df_print: paged
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r, echo=TRUE}
+#Carga de librerias
+
+library(googlesheets4)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+
+```
+
+
+```{r, echo=TRUE}
+
+#Carga de la data desde google drive
+
+gs4_deauth()
+
+data<- read_sheet("https://docs.google.com/spreadsheets/d/1sIpcRjx4UKNp0W03uC3rpyhih85Y3nU7LoDQ2DqVsfk/edit")
+
+#Verificacion
+
+head(data)
+
+
+```
+
+```{r}
+# Limpieza de la data
+
+#Diagnostico de valores nulos
+colSums(is.na(data))
+```
+```{r}
+#Seleccion y renombre de variables
+data_lim <- data %>% 
+  select(fecha_pedido = `Order Date`,
+         segmento = Segment,
+         region = Region,
+         categoria = Category,
+         sub_categoria = `Sub-Category`,
+         ventas = Sales,
+         descuento = Discount,
+         ganancia= Profit)
+
+#Ver estructura de la data
+#verificacion de tipo de dato
+
+str(data_lim)
+
+```
+
