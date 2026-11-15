@@ -70,4 +70,17 @@ data_lim <- data %>%
 str(data_lim)
 
 ```
+```{r}
+#desarollo objetivo 5 
+#5.	Cuantificar la relación entre el nivel de descuento y las ganancias, mediante coeficientes de correlación y gráficos de dispersión, para evaluar si los descuentos altos se asocian con ganancias bajas o negativas.
+correlacion <- cor(data_lim$descuento,data_lim$ganancia,use="complete.obs")
+print(paste("coeficiente de correlacion:", round(correlacion, 4)))
+
+```
+```{r}
+#grafico de dispersion con linea de tendencia 
+ggplot(data_lim, aes(x=descuento, y=ganancia))+geom_point(alpha = 0.4, colour = "darkblue")+geom_smooth(method= "lm",colour = "red", se=TRUE)+labs(title = "relacion entre el nivel de descuento y ganancias", subtitle = "Evaluacion de rentabilidad ante descuentos altos", X="Nivel de descuento", y= "ganancia")+theme_minimal()
+
+```
+A partir del gráfico de dispersión, se observa una clara relación inversa entre el nivel de descuento y las ganancias de la tienda. Cuando los descuentos son nulos (0.0), las transacciones concentran las ganancias más elevadas. Sin embargo, a medida que el porcentaje de descuento aumenta (especialmente en niveles superiores a 0.4 u 80%), las ganancias disminuyen drásticamente, cruzando la línea base hacia valores negativos. Esto demuestra que los descuentos altos erosionan severamente la rentabilidad de las operaciones, generando pérdidas considerables para el negocio.
 
