@@ -1,0 +1,129 @@
+---
+title: "Objetivo1"
+author: "Antony Briceño"
+date: "2026-11-14"
+output: html_document
+---
+## Objetivo 1: Descripción estadística y evolución atravez del tiempo de las ganancias
+
+Para dar cumplimiento al primer objetivo específico, se realiza un análisis descriptivo de la variable "ganancia" (`Profit`) en el periodo comprendido entre 2014 y 2017
+
+### 1. Medidas de tendencia central y dispersión entre 2014 y 2017
+
+En primer lugar, se calculan las principales medidas estadísticas para resumir el comportamiento global de las ganancias en todas las transacciones registradas:
+```{r}
+library(ggplot2)
+library(dplyr)
+
+medidas <- data_lim %>% summarise(
+ media = mean(ganancia),
+ mediana = median(ganancia),
+ desviacion_estandar = sd(ganancia),
+ varianza = var(ganancia),
+ minimo = min(ganancia),
+ maximo = max(ganancia),
+ q25 = quantile(ganancia, 0.25),
+ q75 = quantile(ganancia, 0.75),
+ q99 = quantile(ganancia, 0.99), #esto despues que valores que tienen datos muy atipicos, por eso su desviacion estandar es bastante elevada en comparacion a su media 
+ q1 = quantile(ganancia, 0.1),
+ iqr = IQR(ganancia)
+ #esto vendria siendo todas las medidas necesarias para ver entre los años 2014-2017, por lo regular se mantiene generalmente enre su propia media y no salta a tanto pero los valores atipicos desbalancean bastante 
+)
+```
+
+```{r}
+data_lim %>%
+  mutate(anio = format(fecha_pedido, "%Y")) %>%
+  group_by(anio) %>%
+  summarise(ganancia_neta_anual = sum(ganancia), .groups = "drop") %>%
+  ggplot(aes(x = anio, y = ganancia_neta_anual, group = 1)) +
+  geom_line(color = "steelblue", linewidth = 1.2) +
+  geom_point(color = "darkred", size = 3) +
+  labs(
+    title = "Ganancia Neta Anual",
+    subtitle = "Rendimiento total por cada año",
+    x = "Año",
+    y = "Ganancia Total ($)"
+  ) +
+  theme_minimal()
+```
+
+eso vendria siento como fueron las ganancias entre el transcurso de los años de 2014-2017
+
+#Objetivo 2.	Comparacion de las ganancias generadas por las categorías y subcategorías, identificando las de mayor y menor aporte al beneficio.
+
+```{r}
+tabla_categoria <-data_lim %>%
+  group_by(categoria) %>%
+  summarise(
+    Transacciones = n(),
+    Ganancia_Total = sum(ganancia),
+    Aporte_Porcentual = (sum(ganancia) / sum(data_lim$ganancia)) * 100,
+    Media = mean(ganancia),
+    Mediana = median(ganancia),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Ganancia_Total))
+```
+
+En este bloque se agrupan los datos por categoría principa,para calcular el número de transacciones, la ganancia neta total, el porcentaje de aporte al beneficio global, la media y la mediana. Finalmente, los resultados se ordenan de mayor a menor ganancia para identificar rápidamente la categoría más rentable.
+
+```{r}
+data_lim %>%
+  group_by(categoria) %>%
+  summarise(ganancia_total = sum(ganancia), .groups = "drop") %>%
+  ggplot(aes(
+    x = reorder(categoria, ganancia_total),
+    y = ganancia_total,
+    fill = reorder(categoria, ganancia_total)
+  )) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_manual(values = c("#62B6CB", "#5FA8D3", "#1B4965")) +
+  coord_flip() +
+  labs(
+    title = "Ganancia Total por Categoría",
+    x = "Categoría",
+    y = "Ganancia Total ($)"
+  ) +
+  theme_minimal()
+```
+
+Este código genera un gráfico de barras horizontales ordenado de mayor a menor según la ganancia acumulada, permitiendo visualizar de forma directa la diferencia en el aporte económico entre las tres categorías de la tienda.
+
+
+```{r}
+tabla_subcategoria <- data_lim %>%
+  group_by(categoria, sub_categoria) %>%
+  summarise(
+    Transacciones = n(),
+    Ganancia_Total = sum(ganancia),
+    Aporte_Porcentual = (sum(ganancia) / sum(data_lim$ganancia)) * 100,
+    Media = mean(ganancia),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Ganancia_Total))
+```
+
+Aquí se desglosa el análisis a nivel de subcategoría, manteniendo su categoría de origen como referencia. Se calcula el total de operaciones, la ganancia neta, el peso porcentual sobre el total y el promedio por venta, ordenando la tabla de forma descendente para detectar tanto los productos estrella como aquellos que generan pérdidas.
+
+```{r}
+data_lim %>%
+  group_by(sub_categoria) %>%
+  summarise(ganancia_total = sum(ganancia), .groups = "drop") %>%
+  ggplot(aes(
+    x = reorder(sub_categoria, ganancia_total),
+    y = ganancia_total,
+    fill = ganancia_total > 0
+  )) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_manual(values = c("TRUE" = "steelblue", "FALSE" = "firebrick")) +
+  coord_flip() +
+  labs(
+    title = "Aporte al Beneficio por Subcategoría",
+    subtitle = "Subcategorías con ganancia neta (azul) vs. pérdida neta (rojo)",
+    x = "Subcategoría",
+    y = "Ganancia Total ($)"
+  ) +
+  theme_minimal()
+```
+
